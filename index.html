@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://www.pristinepearlpharma.in/images/alt-logo.png">
+    <link rel="apple-touch-icon" href="https://www.pristinepearlpharma.in/images/alt-logo.png">
+    <title>Pristine – Travel Expense</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #0F2448;
+            --navy-light: #1E3A5F;
+            --teal: #0A9396;
+            --teal-light: #94D2BD;
+            --gold: #E9C46A;
+            --cream: #F8F5F0;
+            --rose: #E76F51;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 { font-family: 'Sora', sans-serif; }
+
+        /* Header */
+        .header-bar {
+            background: var(--navy);
+            border-bottom: 3px solid var(--teal);
+        }
+
+        /* Tabs */
+        .tab-btn {
+            font-family: 'Sora', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 8px 20px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            color: rgba(255,255,255,0.5);
+        }
+        .tab-btn.active {
+            background: var(--teal);
+            color: white;
+        }
+        .tab-btn:hover:not(.active) { color: var(--teal-light); }
+
+        /* Mode toggle */
+        .mode-btn {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            border-radius: 8px;
+            transition: all 0.2s;
+            color: #94a3b8;
+        }
+        .mode-btn.active {
+            background: var(--navy);
+            color: white;
+            box-shadow: 0 2px 8px rgba(15,36,72,0.25);
+        }
+
+        /* Inputs */
+        .stop-input {
+            width: 100%;
+            padding: 12px 12px 12px 32px;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .stop-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(10,147,150,0.12);
+        }
+
+        /* Card styles */
+        .card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Result card */
+        #chainResult {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1.5px solid;
+        }
+
+        /* Suggestion dropdown */
+        .suggestions-list {
+            position: absolute;
+            z-index: 50;
+            width: 100%;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            margin-top: 4px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .suggestion-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.15s;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: #f0fdfc; color: var(--teal); }
+
+        /* Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f8f9fa; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Stat card accent */
+        .stat-accent-teal { border-left: 4px solid var(--teal); }
+        .stat-accent-rose { border-left: 4px solid var(--rose); }
+        .stat-accent-gold { border-left: 4px solid var(--gold); }
+        .stat-accent-navy { border-left: 4px solid var(--navy); }
+
+        /* Snapshot overlay */
+        #snapshotOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        #snapshotOverlay:not(.hidden) {
+            display: flex;
+        }
+        .snapshot-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+        }
+
+        /* Progress */
+        #progressContainer {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 420px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 18px 20px;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            z-index: 100;
+        }
+
+        /* Print / snapshot card */
+        #snapshotCard {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        #snapshotCard::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            background: rgba(10,147,150,0.15);
+        }
+        #snapshotCard::after {
+            content: '';
+            position: absolute;
+            bottom: -20px; left: 40px;
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: rgba(233,196,106,0.1);
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { animation: spin 0.8s linear infinite; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+        .calc-btn {
+            background: var(--teal);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(10,147,150,0.3);
+        }
+        .calc-btn:hover { background: #088a8d; transform: translateY(-1px); }
+        .calc-btn:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+
+        .add-btn {
+            border: 1.5px dashed #cbd5e1;
+            color: var(--teal);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        .add-btn:hover { border-color: var(--teal); background: #f0fdfc; }
+
+        /* Table */
+        table thead th { background: var(--navy); color: rgba(255,255,255,0.7); }
+        table tbody tr:hover { background: #f0fdfc; }
+
+        /* KM badge */
+        .km-pill {
+            background: #f0fdfc;
+            color: var(--teal);
+            font-weight: 800;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid #94D2BD;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header-bar sticky top-0 z-40">
+    <div class="max-w-[1600px] mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <img src="https://www.pristinepearlpharma.in/images/alt-logo.png" 
+                 alt="Pristine Logo" 
+                 class="h-10 w-auto object-contain"
+                 onerror="this.onerror=null;this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
+            <div id="logoFallback" style="display:none" class="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-lg leading-tight" style="font-family:'Sora',sans-serif;">Pristine</h1>
+                <p class="text-xs font-medium" style="color:var(--teal-light);letter-spacing:0.12em;text-transform:uppercase;">Travel Expense</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Tab nav -->
+            <div class="flex gap-1 bg-white/10 p-1 rounded-lg">
+                <button onclick="switchTab('manual')" id="tabBtnManual" class="tab-btn active">Route Finder</button>
+                <button onclick="switchTab('audit')" id="tabBtnAudit" class="tab-btn">Batch Audit</button>
+            </div>
+
+            <!-- Import -->
+            <input type="file" id="upload" class="hidden" accept=".xlsx,.xls,.csv">
+            <label for="upload" class="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all" 
+                   style="background:var(--teal);color:white;letter-spacing:0.05em;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                Import Data
+            </label>
+
+            <!-- Download template -->
+            <button onclick="downloadTemplate()" 
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all"
+                    style="background:rgba(233,196,106,0.15);color:var(--gold);border:1px solid rgba(233,196,106,0.3);letter-spacing:0.05em;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Template
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 max-w-[1600px] mx-auto w-full p-6">
+
+    <!-- MANUAL FINDER -->
+    <section id="manualSection" class="space-y-5">
+        <div class="flex flex-col lg:flex-row gap-5">
+
+            <!-- Left: Calculator -->
+            <div class="lg:w-[360px] space-y-4">
+                <div class="card p-6">
+                    <!-- Card header -->
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h2 class="text-slate-900 font-bold text-base">Route Calculator</h2>
+                            <p class="text-slate-400 text-xs mt-0.5">Car distance (shortest route)</p>
+                        </div>
+                        <!-- CE toggle -->
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 group-hover:text-teal-600"
+                                  style="transition:color 0.2s">C&E Mode</span>
+                            <div class="relative">
+                                <input type="checkbox" id="ceToggle" class="sr-only peer" onchange="calculateChain()">
+                                <div class="w-10 h-5 bg-slate-200 rounded-full peer peer-checked:bg-teal-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Mode toggle -->
+                    <div class="flex bg-slate-100 p-1 rounded-xl mb-5 gap-1">
+                        <button onclick="updateLocalMode('1W')" id="local1W" class="mode-btn active">1-Way</button>
+                        <button onclick="updateLocalMode('2W')" id="local2W" class="mode-btn">2-Way</button>
+                    </div>
+
+                    <!-- Stops -->
+                    <div id="stopContainer" class="space-y-3 mb-4">
+                        <div class="relative stop-wrapper">
+                            <span class="absolute left-3 top-4 w-2 h-2 rounded-full z-10" style="background:var(--teal)"></span>
+                            <input class="stop-input" placeholder="Starting City" oninput="handleInput(this)">
+                        </div>
+                        <div class="relative stop-wrapper">
+                            <span class="absolute left-3 top-4 w-2 h-2 rounded-full z-10" style="background:var(--rose)"></span>
+                            <input class="stop-input" placeholder="Destination / Stop" oninput="handleInput(this)">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="addStop()" class="add-btn flex-1">+ Add Stop</button>
+                        <button onclick="calculateChain()" id="chainBtn" class="calc-btn flex-[2]">Calculate Route</button>
+                    </div>
+
+                    <!-- Result Box -->
+                    <div id="chainResult" class="mt-5 hidden fade-in">
+                        <!-- Result content injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Map -->
+            <div class="flex-1 card p-2 min-h-[560px] overflow-hidden relative">
+                <div id="mapLoader" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 hidden flex items-center justify-center">
+                    <div class="text-center">
+                        <svg class="w-10 h-10 mx-auto spinner" style="color:var(--teal)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                        <p class="text-sm font-semibold mt-2" style="color:var(--navy)">Calculating route...</p>
+                    </div>
+                </div>
+                <iframe id="map" class="w-full h-full rounded-xl" style="min-height:540px" frameborder="0" 
+                        src="https://www.google.com/maps?q=india&output=embed"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- BATCH AUDIT -->
+    <section id="auditSection" class="hidden space-y-5">
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="card p-5 stat-accent-navy">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Audited</p>
+                <h3 id="statTotal" class="text-3xl font-black mt-1" style="color:var(--navy);font-family:'Sora',sans-serif;">0</h3>
+            </div>
+            <div class="card p-5 stat-accent-gold">
+                <p class="text-[10px] font-black uppercase tracking-widest text-amber-500">Duplicates</p>
+                <h3 id="statDuplicates" class="text-3xl font-black mt-1 text-slate-800" style="font-family:'Sora',sans-serif;">0</h3>
+            </div>
+            <div class="card p-5 stat-accent-rose">
+                <p class="text-[10px] font-black uppercase tracking-widest text-rose-500">Discrepancies</p>
+                <h3 id="statIssues" class="text-3xl font-black mt-1 text-slate-800" style="font-family:'Sora',sans-serif;">0</h3>
+            </div>
+            <div class="card p-5 stat-accent-teal">
+                <p class="text-[10px] font-black uppercase tracking-widest" style="color:var(--teal)">Total Fare</p>
+                <h3 id="statTotalFare" class="text-3xl font-black mt-1" style="color:var(--teal);font-family:'Sora',sans-serif;">₹0</h3>
+            </div>
+        </div>
+
+        <!-- Table card -->
+        <div class="card overflow-hidden">
+            <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-3" style="background:#f8f9fa">
+                <input id="search" placeholder="Search by city, region..." 
+                       class="w-full sm:w-72 px-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:border-teal-400"
+                       style="font-family:'DM Sans',sans-serif;">
+                <div class="flex gap-2">
+                    <button onclick="sortDiff()" 
+                            class="text-xs font-bold text-slate-500 bg-white border border-slate-200 px-4 py-2 rounded-lg hover:text-teal-600 transition-all">
+                        Sort by Variance
+                    </button>
+                    <button onclick="exportExcel()" 
+                            class="px-5 py-2 rounded-lg text-xs font-bold text-white transition-all flex items-center gap-2"
+                            style="background:var(--teal);box-shadow:0 4px 12px rgba(10,147,150,0.25)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar" style="max-height:580px">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 z-10">
+                        <tr class="text-[10px] uppercase tracking-widest font-black">
+                            <th class="p-4">Type</th>
+                            <th class="p-4">Route Info</th>
+                            <th class="p-4 text-right">System KM</th>
+                            <th class="p-4 text-right" id="thAuditLabel">Audit KM (1W)</th>
+                            <th class="p-4 text-right">Fare Output</th>
+                            <th class="p-4 text-center">Map</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
+                        <tr>
+                            <td colspan="6" class="p-20 text-center text-slate-300 italic">
+                                <div class="flex flex-col items-center gap-3">
+                                    <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <span>Upload an Excel file to begin the audit</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Progress -->
+<div id="progressContainer" class="hidden">
+    <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-black uppercase" style="color:var(--teal);letter-spacing:0.1em">Analyzing Routes...</span>
+        <span class="text-xs font-black text-slate-700" id="progressPercent">0%</span>
+    </div>
+    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full transition-all" style="background:var(--teal);width:0%"></div>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-1" id="progressText">Processing...</p>
+</div>
+
+<!-- Snapshot Overlay -->
+<div id="snapshotOverlay" class="hidden">
+    <div class="snapshot-modal">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800" style="font-family:'Sora',sans-serif;">Route Snapshot</h3>
+            <button onclick="closeSnapshot()" class="text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- The card to snapshot -->
+        <div id="snapshotCard">
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-4">
+                    <img src="https://www.pristinepearlpharma.in/images/alt-logo.png" 
+                         alt="Pristine" class="h-7 object-contain" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))"
+                         onerror="this.style.display='none'">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest opacity-60">Pristine</p>
+                        <p class="text-[9px] uppercase tracking-widest opacity-40">Travel Expense</p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p id="snapRoute" class="text-lg font-bold leading-snug"></p>
+                    <p id="snapMode" class="text-xs opacity-60 mt-1"></p>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-white/10 rounded-xl p-3">
+                        <p class="text-[9px] uppercase tracking-widest opacity-60 font-bold">Distance</p>
+                        <p id="snapKm" class="text-xl font-black mt-1"></p>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-3">
+                        <p class="text-[9px] uppercase tracking-widest opacity-60 font-bold">Fare</p>
+                        <p id="snapFare" class="text-xl font-black mt-1" style="color:var(--gold)"></p>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-3">
+                        <p class="text-[9px] uppercase tracking-widest opacity-60 font-bold">Type</p>
+                        <p id="snapType" class="text-xl font-black mt-1"></p>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                    <p id="snapRate" class="text-[10px] opacity-50"></p>
+                    <p class="text-[9px] opacity-30" id="snapDate"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 mt-4">
+            <button onclick="downloadSnapshot()" 
+                    class="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2"
+                    style="background:var(--navy)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Download PNG
+            </button>
+            <button onclick="copySnapshotText()" 
+                    class="flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                    style="background:#f1f5f9;color:var(--navy)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                Copy Text
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBY4B51EgEvjESbzq0BPhNXIsOOO22riG-2cs-huQkTfs5gj2ulw_PNGqztVpJg1LgeA/exec";
+    let tableData = [];
+    let globalMode = '1W';
+    let lastCalculation1W = null;
+    let lastStops = [];
+    let lastLogic = null;
+
+    // ===== GOOGLE PLACES AUTOCOMPLETE (via Nominatim – no key needed) =====
+    let autocompleteDebounce = null;
+
+    function handleInput(input) {
+        const query = input.value.trim();
+        const parent = input.parentElement;
+        const existing = parent.querySelector('.suggestions-list');
+        if (existing) existing.remove();
+        if (query.length < 2) return;
+
+        clearTimeout(autocompleteDebounce);
+        autocompleteDebounce = setTimeout(() => {
+            fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=in&format=json&limit=7&addressdetails=1`,
+                  { headers: { 'Accept-Language': 'en' } })
+                .then(r => r.json())
+                .then(data => {
+                    const seen = new Set();
+                    const places = [];
+                    data.forEach(d => {
+                        const city = d.address.city || d.address.town || d.address.village || d.address.county || d.name;
+                        const state = d.address.state || '';
+                        const label = city ? `${city}${state ? ', ' + state : ''}` : d.display_name.split(',').slice(0,2).join(',');
+                        if (city && !seen.has(city.toLowerCase())) {
+                            seen.add(city.toLowerCase());
+                            places.push({ city: city.trim(), label: label.trim() });
+                        }
+                    });
+                    showSuggestions(input, places);
+                })
+                .catch(() => {});
+        }, 300);
+    }
+
+    function showSuggestions(input, places) {
+        const parent = input.parentElement;
+        const existing = parent.querySelector('.suggestions-list');
+        if (existing) existing.remove();
+        if (!places.length) return;
+
+        const list = document.createElement('div');
+        list.className = 'suggestions-list custom-scrollbar';
+        places.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            const parts = p.label.split(',');
+            item.innerHTML = `<span class="font-semibold">${parts[0]}</span><span style="color:#94a3b8;font-size:11px">${parts.slice(1).join(',')}</span>`;
+            item.onclick = () => { input.value = p.city; list.remove(); calculateChain(); };
+            list.appendChild(item);
+        });
+        parent.appendChild(list);
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.stop-wrapper')) {
+            document.querySelectorAll('.suggestions-list').forEach(el => el.remove());
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.classList.contains('stop-input')) {
+            document.querySelectorAll('.suggestions-list').forEach(el => el.remove());
+            calculateChain();
+        }
+    });
+
+        // ===== TAB SWITCH =====
+    function switchTab(tab) {
+        document.getElementById('manualSection').classList.toggle('hidden', tab !== 'manual');
+        document.getElementById('auditSection').classList.toggle('hidden', tab !== 'audit');
+        document.getElementById('tabBtnManual').className = 'tab-btn ' + (tab === 'manual' ? 'active' : '');
+        document.getElementById('tabBtnAudit').className = 'tab-btn ' + (tab === 'audit' ? 'active' : '');
+    }
+
+    // ===== MODE TOGGLE =====
+    function updateLocalMode(mode) {
+        globalMode = mode;
+        document.getElementById('local1W').className = 'mode-btn ' + (mode === '1W' ? 'active' : '');
+        document.getElementById('local2W').className = 'mode-btn ' + (mode === '2W' ? 'active' : '');
+        document.getElementById('thAuditLabel').innerText = `Audit KM (${mode})`;
+        if (lastCalculation1W !== null) updateManualUI(lastCalculation1W);
+    }
+
+    // ===== ADD STOP =====
+    function addStop() {
+        const container = document.getElementById('stopContainer');
+        const div = document.createElement('div');
+        div.className = 'relative stop-wrapper flex items-center group';
+        div.innerHTML = `
+            <span class="absolute left-3 top-4 w-2 h-2 rounded-full z-10" style="background:#cbd5e1"></span>
+            <input class="stop-input pr-10" placeholder="Next Stop" oninput="handleInput(this)">
+            <button onclick="this.parentElement.remove(); calculateChain();" 
+                    class="absolute right-3 text-slate-300 hover:text-rose-500 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    // ===== FARE LOGIC =====
+    function getLogic(dist1W) {
+        const isCE = document.getElementById('ceToggle').checked;
+        const modeDist = globalMode === '1W' ? dist1W : dist1W * 2;
+
+        if (isCE) {
+            const rate = dist1W > 100 ? 2.50 : 3.75;
+            return {
+                type: "C&E",
+                typeLabel: "Care & Educators",
+                rateText: `₹${rate.toFixed(2)} / km (C&E Rate)`,
+                fare: modeDist * rate,
+                modeDist,
+                colorClass: "amber",
+                headerBg: "linear-gradient(135deg,#f59e0b,#d97706)",
+                fareColor: "#d97706",
+                badgeBg: "#fef3c7",
+                badgeColor: "#92400e"
+            };
+        } else {
+            if (dist1W <= 25) {
+                return {
+                    type: "HQ",
+                    typeLabel: "Headquarters",
+                    rateText: "HQ Flat Rate (₹0.00)",
+                    fare: 0,
+                    modeDist,
+                    headerBg: "linear-gradient(135deg,#334155,#1e293b)",
+                    fareColor: "#94a3b8",
+                    badgeBg: "#f1f5f9",
+                    badgeColor: "#475569"
+                };
+            } else {
+                const rate = modeDist > 500 ? 2.75 : 3.50;
+                return {
+                    type: "EX HQ",
+                    typeLabel: "Ex-Headquarters",
+                    rateText: `₹${rate.toFixed(2)} / km`,
+                    fare: modeDist * rate,
+                    modeDist,
+                    headerBg: `linear-gradient(135deg,var(--teal),#087e81)`,
+                    fareColor: "#0d9488",
+                    badgeBg: "#ccfbf1",
+                    badgeColor: "#0f766e"
+                };
+            }
+        }
+    }
+
+    // ===== KM FETCH =====
+    async function getKM(from, to) {
+        if (!from || !to) return 0;
+        try {
+            const res = await fetch(`${SCRIPT_URL}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&mode=driving`);
+            const data = await res.json();
+            return Math.round(data.km || 0);
+        } catch { return 0; }
+    }
+
+    // ===== CALCULATE =====
+    async function calculateChain() {
+        const inputs = document.querySelectorAll('.stop-input');
+        const stops = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
+        if (stops.length < 2) return;
+
+        lastStops = stops;
+        const btn = document.getElementById('chainBtn');
+        const loader = document.getElementById('mapLoader');
+        btn.innerText = "Routing..."; btn.disabled = true;
+        loader.classList.remove('hidden');
+
+        let total1W = 0;
+        for (let i = 0; i < stops.length - 1; i++) {
+            total1W += await getKM(stops[i], stops[i+1]);
+        }
+
+        lastCalculation1W = total1W;
+        updateManualUI(total1W);
+
+        const mapQuery = stops.join(' to ');
+        document.getElementById('map').src = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+
+        btn.innerText = "Calculate Route"; btn.disabled = false;
+        loader.classList.add('hidden');
+    }
+
+    // ===== UPDATE UI =====
+    function updateManualUI(dist1W) {
+        const logic = getLogic(dist1W);
+        lastLogic = logic;
+        const resBox = document.getElementById('chainResult');
+
+        resBox.innerHTML = `
+            <div style="background:${logic.headerBg};border-color:transparent" class="border-0 rounded-t-2xl p-4 text-white">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p style="font-size:9px;letter-spacing:0.15em;opacity:0.7;text-transform:uppercase;font-weight:800">Calculated Route • ${globalMode === '1W' ? '1-Way' : '2-Way'}</p>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <h3 class="text-2xl font-black" style="font-family:'Sora',sans-serif">${logic.type}</h3>
+                            <span style="font-size:11px;opacity:0.7">${logic.typeLabel}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p style="font-size:9px;opacity:0.6;text-transform:uppercase;letter-spacing:0.1em">Distance</p>
+                        <p class="font-black text-xl">${logic.modeDist} km</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 flex items-center justify-between" style="border-left:3px solid ${logic.fareColor || '#0A9396'}">
+                <div>
+                    <p style="font-size:9px;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:0.1em">Total Fare</p>
+                    <p class="text-3xl font-black mt-1" style="color:${logic.fareColor};font-family:'Sora',sans-serif">₹${Math.round(logic.fare).toLocaleString('en-IN')}</p>
+                    <p style="font-size:10px;color:#94a3b8;margin-top:4px;font-style:italic">${logic.rateText}</p>
+                </div>
+                <div class="flex gap-2">
+                    <!-- Snapshot button -->
+                    <button onclick="openSnapshot()" title="Snapshot" 
+                            class="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105"
+                            style="background:#f1f5f9;color:#64748b">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    <!-- Copy button -->
+                    <button onclick="copyResult()" title="Copy" 
+                            class="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105"
+                            style="background:#f1f5f9;color:#64748b">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        resBox.classList.remove('hidden');
+    }
+
+    // ===== COPY =====
+    function copyResult() {
+        if (!lastLogic) return;
+        const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
+        const text = `Pristine Travel Expense\nRoute: ${stops.join(' → ')}\nType: ${lastLogic.type} (${lastLogic.typeLabel})\nDistance: ${lastLogic.modeDist} km (${globalMode})\nFare: ₹${Math.round(lastLogic.fare).toLocaleString('en-IN')}\nRate: ${lastLogic.rateText}`;
+        navigator.clipboard.writeText(text).catch(() => {
+            const el = document.createElement('textarea');
+            el.value = text; document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+        });
+    }
+
+    // ===== SNAPSHOT =====
+    function openSnapshot() {
+        if (!lastLogic) return;
+        const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
+        document.getElementById('snapRoute').innerText = stops.join(' → ');
+        document.getElementById('snapMode').innerText = globalMode === '1W' ? '1-Way Journey' : '2-Way Journey';
+        document.getElementById('snapKm').innerText = lastLogic.modeDist + ' km';
+        document.getElementById('snapFare').innerText = '₹' + Math.round(lastLogic.fare).toLocaleString('en-IN');
+        document.getElementById('snapType').innerText = lastLogic.type;
+        document.getElementById('snapRate').innerText = lastLogic.rateText;
+        document.getElementById('snapDate').innerText = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+        document.getElementById('snapshotOverlay').classList.remove('hidden');
+    }
+
+    function closeSnapshot() {
+        document.getElementById('snapshotOverlay').classList.add('hidden');
+    }
+
+    function downloadSnapshot() {
+        const card = document.getElementById('snapshotCard');
+        html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
+            const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
+            const name = stops.length >= 2 ? `${stops[0].replace(/\s/g,'_')}_to_${stops[stops.length-1].replace(/\s/g,'_')}` : 'route';
+            const a = document.createElement('a');
+            a.download = `Pristine_Route_${name}.png`;
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        });
+    }
+
+    function copySnapshotText() {
+        const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
+        const text = `Pristine Travel Expense\n${stops.join(' → ')}\n${document.getElementById('snapKm').innerText} | ₹${document.getElementById('snapFare').innerText} | ${lastLogic.type}\n${lastLogic.rateText}`;
+        navigator.clipboard.writeText(text).catch(() => {
+            const el = document.createElement('textarea');
+            el.value = text; document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+        });
+        const btn = event.target.closest('button');
+        btn.innerText = '✓ Copied!';
+        setTimeout(() => { btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg> Copy Text'; }, 2000);
+    }
+
+    // ===== TEMPLATE DOWNLOAD =====
+    function downloadTemplate() {
+        const wb = XLSX.utils.book_new();
+        const headers = [["REGION NAME","FROM","TO","DISTANCE","EMPLOYEE NAME","EMPLOYEE ID","DEPARTMENT","DATE","NOTES"]];
+        const sample = [
+            ["South Zone","Chennai","Bangalore",350,"Ravi Kumar","EMP001","Sales","2024-01-15","Client visit"],
+            ["North Zone","Delhi","Agra",210,"Priya Sharma","EMP002","Operations","2024-01-16","Audit"],
+            ["West Zone","Mumbai","Pune",155,"Amit Patel","EMP003","Care & Educators","2024-01-17","Training"],
+        ];
+        const ws = XLSX.utils.aoa_to_sheet([...headers, ...sample]);
+        ws['!cols'] = headers[0].map((_, i) => ({ wch: [18,20,20,12,22,14,22,14,28][i] }));
+        XLSX.utils.book_append_sheet(wb, ws, "Travel Audit Data");
+        XLSX.writeFile(wb, "Pristine_Travel_Import_Template.xlsx");
+    }
+
+    // ===== BATCH UPLOAD =====
+    window.onload = () => {
+        document.getElementById('upload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+                const routes = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                document.getElementById('statTotal').innerText = routes.length;
+                switchTab('audit');
+                processBatch(routes);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        document.getElementById('search').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    };
+
+    // ===== BATCH PROCESS =====
+    async function processBatch(routes) {
+        tableData = [];
+        let issues = 0, totalFare = 0;
+        const container = document.getElementById('progressContainer');
+        container.classList.remove('hidden');
+
+        for (let i = 0; i < routes.length; i++) {
+            const row = routes[i];
+            const from = row["FROM"] || row["Origin"] || "";
+            const to = row["TO"] || row["Destination"] || "";
+            const sysKm = parseFloat(row["DISTANCE"] || row["KM"] || 0);
+            const reg = row["REGION NAME"] || "N/A";
+
+            const d1W = await getKM(from, to);
+            const logic = getLogic(d1W);
+            totalFare += logic.fare;
+
+            const diff = Math.abs(sysKm - (globalMode === '1W' ? d1W : d1W * 2));
+            if (diff > 5) issues++;
+
+            tableData.push({ reg, from, to, sysKm, d1W, diff, logic });
+
+            const p = ((i + 1) / routes.length) * 100;
+            document.getElementById('progressBar').style.width = p + '%';
+            document.getElementById('progressPercent').innerText = Math.round(p) + '%';
+            document.getElementById('progressText').innerText = `Processing ${i+1} of ${routes.length} routes...`;
+            document.getElementById('statIssues').innerText = issues;
+            document.getElementById('statTotalFare').innerText = '₹' + Math.round(totalFare).toLocaleString('en-IN');
+
+            if (i % 5 === 0 || i === routes.length - 1) renderTable();
+        }
+        container.classList.add('hidden');
+    }
+
+    function renderTable() {
+        const body = document.getElementById('tableBody');
+        body.innerHTML = '';
+        tableData.forEach(r => {
+            const isErr = r.diff > 8;
+            const tr = document.createElement('tr');
+            tr.className = `hover:bg-teal-50/30 transition-all ${isErr ? 'bg-rose-50/40' : ''}`;
+            tr.innerHTML = `
+                <td class="p-4">
+                    <span class="badge" style="background:${r.logic.badgeBg || '#f1f5f9'};color:${r.logic.badgeColor || '#475569'}">${r.logic.type}</span>
+                </td>
+                <td class="p-4">
+                    <div class="font-bold text-slate-800 text-xs">${r.from} <span style="color:var(--teal)">→</span> ${r.to}</div>
+                    <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">${r.reg}</div>
+                </td>
+                <td class="p-4 text-right font-medium text-slate-400">${r.sysKm} km</td>
+                <td class="p-4 text-right">
+                    <span class="km-pill">${r.logic.modeDist} km</span>
+                    <div style="font-size:9px;margin-top:3px;font-weight:700" class="${isErr ? 'text-rose-500' : 'text-slate-400'}">Δ ${r.diff.toFixed(1)} km</div>
+                </td>
+                <td class="p-4 text-right">
+                    <div class="font-black text-base" style="color:${r.logic.fareColor || '#0A9396'}">₹${Math.round(r.logic.fare).toLocaleString('en-IN')}</div>
+                    <div style="font-size:9px;color:#94a3b8">${r.logic.rateText}</div>
+                </td>
+                <td class="p-4 text-center">
+                    <button onclick="viewOnMap('${r.from}', '${r.to}')" 
+                            class="w-8 h-8 rounded-lg flex items-center justify-center mx-auto transition-all hover:scale-110"
+                            style="background:#f0fdfc;color:var(--teal)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            body.appendChild(tr);
+        });
+    }
+
+    function viewOnMap(f, t) {
+        switchTab('manual');
+        const inputs = document.querySelectorAll('.stop-input');
+        inputs[0].value = f;
+        inputs[1].value = t;
+        calculateChain();
+    }
+
+    function sortDiff() {
+        tableData.sort((a, b) => b.diff - a.diff);
+        renderTable();
+    }
+
+    function exportExcel() {
+        const data = tableData.map(r => ({
+            Region: r.reg, From: r.from, To: r.to,
+            System_KM: r.sysKm, Audit_KM: r.logic.modeDist,
+            Mode: globalMode, Type: r.logic.type,
+            Variance_KM: parseFloat(r.diff.toFixed(2)),
+            Fare_INR: Math.round(r.logic.fare),
+            Rate_Logic: r.logic.rateText
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        ws['!cols'] = Object.keys(data[0] || {}).map(() => ({ wch: 18 }));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Audit Results");
+        XLSX.writeFile(wb, "Pristine_Travel_Audit_Report.xlsx");
+    }
+
+    // Close snapshot on overlay click
+    document.getElementById('snapshotOverlay').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('snapshotOverlay')) closeSnapshot();
+    });
+</script>
+</body>
+</html>
