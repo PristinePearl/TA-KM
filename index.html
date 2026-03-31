@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Favicon -->
     <link rel="icon" type="image/png" href="https://www.pristinepearlpharma.in/images/alt-logo.png">
     <link rel="apple-touch-icon" href="https://www.pristinepearlpharma.in/images/alt-logo.png">
     <title>Pristine – Travel Expense</title>
@@ -33,13 +32,11 @@
 
         h1, h2, h3 { font-family: 'Sora', sans-serif; }
 
-        /* Header */
         .header-bar {
             background: var(--navy);
             border-bottom: 3px solid var(--teal);
         }
 
-        /* Tabs */
         .tab-btn {
             font-family: 'Sora', sans-serif;
             font-size: 11px;
@@ -51,13 +48,9 @@
             transition: all 0.2s;
             color: rgba(255,255,255,0.5);
         }
-        .tab-btn.active {
-            background: var(--teal);
-            color: white;
-        }
+        .tab-btn.active { background: var(--teal); color: white; }
         .tab-btn:hover:not(.active) { color: var(--teal-light); }
 
-        /* Mode toggle */
         .mode-btn {
             flex: 1;
             padding: 8px 4px;
@@ -75,7 +68,6 @@
             box-shadow: 0 2px 8px rgba(15,36,72,0.25);
         }
 
-        /* Inputs */
         .stop-input {
             width: 100%;
             padding: 12px 12px 12px 32px;
@@ -92,7 +84,6 @@
             box-shadow: 0 0 0 3px rgba(10,147,150,0.12);
         }
 
-        /* Card styles */
         .card {
             background: white;
             border-radius: 16px;
@@ -100,14 +91,8 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
         }
 
-        /* Result card */
-        #chainResult {
-            border-radius: 14px;
-            overflow: hidden;
-            border: 1.5px solid;
-        }
+        #chainResult { border-radius: 14px; overflow: hidden; border: 1.5px solid; }
 
-        /* Suggestion dropdown */
         .suggestions-list {
             position: absolute;
             z-index: 50;
@@ -130,12 +115,10 @@
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: #f0fdfc; color: var(--teal); }
 
-        /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f8f9fa; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
 
-        /* Badge */
         .badge {
             display: inline-block;
             padding: 2px 8px;
@@ -146,13 +129,11 @@
             text-transform: uppercase;
         }
 
-        /* Stat card accent */
         .stat-accent-teal { border-left: 4px solid var(--teal); }
         .stat-accent-rose { border-left: 4px solid var(--rose); }
         .stat-accent-gold { border-left: 4px solid var(--gold); }
         .stat-accent-navy { border-left: 4px solid var(--navy); }
 
-        /* Snapshot overlay */
         #snapshotOverlay {
             position: fixed;
             inset: 0;
@@ -162,9 +143,7 @@
             align-items: center;
             justify-content: center;
         }
-        #snapshotOverlay:not(.hidden) {
-            display: flex;
-        }
+        #snapshotOverlay:not(.hidden) { display: flex; }
         .snapshot-modal {
             background: white;
             border-radius: 20px;
@@ -174,23 +153,125 @@
             box-shadow: 0 24px 60px rgba(0,0,0,0.3);
         }
 
-        /* Progress */
-        #progressContainer {
+        /* ── PROGRESS OVERLAY ── */
+        #progressOverlay {
             position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 420px;
+            inset: 0;
+            background: rgba(15,36,72,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #progressOverlay:not(.hidden) { display: flex; }
+
+        .progress-card {
             background: white;
-            border: 1px solid #e2e8f0;
-            padding: 18px 20px;
-            border-radius: 16px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-            z-index: 100;
+            border-radius: 24px;
+            padding: 36px 40px;
+            width: 460px;
+            max-width: 92vw;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--teal), var(--teal-light), var(--gold));
         }
 
-        /* Print / snapshot card */
+        /* animated route dots */
+        .route-anim {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 20px 0;
+            position: relative;
+            height: 48px;
+        }
+        .route-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: var(--navy);
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+        .route-dot.dest { background: var(--rose); }
+        .route-line-wrap {
+            flex: 1;
+            height: 3px;
+            background: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        .route-line-fill {
+            position: absolute;
+            left: -100%; top: 0; height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--teal), var(--teal-light));
+            animation: routePulse 1.6s ease-in-out infinite;
+        }
+        @keyframes routePulse {
+            0%   { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* ping dots */
+        .ping-ring {
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 2px solid var(--teal);
+            opacity: 0;
+            animation: pingRing 2s ease-out infinite;
+        }
+        .route-dot.dest .ping-ring { border-color: var(--rose); animation-delay: 0.5s; }
+        @keyframes pingRing {
+            0%   { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2.2); }
+        }
+
+        /* car icon sliding */
+        .car-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0%;
+            animation: carSlide 1.6s ease-in-out infinite;
+            z-index: 5;
+        }
+        @keyframes carSlide {
+            0%   { left: 0%; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        /* stats during process */
+        .proc-stat {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* shimmer for rows being processed */
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-row td {
+            background: linear-gradient(90deg, #f8fafc 25%, #e8f7f7 50%, #f8fafc 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+        }
+
         #snapshotCard {
             background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
             border-radius: 16px;
@@ -248,11 +329,9 @@
         }
         .add-btn:hover { border-color: var(--teal); background: #f0fdfc; }
 
-        /* Table */
         table thead th { background: var(--navy); color: rgba(255,255,255,0.7); }
         table tbody tr:hover { background: #f0fdfc; }
 
-        /* KM badge */
         .km-pill {
             background: #f0fdfc;
             color: var(--teal);
@@ -263,70 +342,85 @@
             border: 1px solid #94D2BD;
         }
 
+        #floatCalc { position: fixed; bottom: 28px; right: 24px; z-index: 200; font-family: 'DM Sans', sans-serif; }
+        #floatCalcTrigger {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: var(--navy);
+            border: 2px solid var(--teal);
+            box-shadow: 0 4px 20px rgba(15,36,72,0.35);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        #floatCalcPanel {
+            width: 244px; background: white;
+            border-radius: 16px; border: 1.5px solid #e2e8f0;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            overflow: hidden; margin-bottom: 10px;
+        }
+        .fc-header { background: var(--navy); padding: 10px; color: white; display: flex; justify-content: space-between; }
+        .fc-body { padding: 12px; }
+        .fc-input { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; text-align: right; }
 
-/* FLOATING CALCULATOR */
-#floatCalc {
-    position: fixed;
-    bottom: 28px;
-    right: 24px;
-    z-index: 200;
-    font-family: 'DM Sans', sans-serif;
-}
+        .audit-th { background: var(--navy); color: rgba(255,255,255,0.75); padding: 10px 12px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+        .audit-td { padding: 10px 12px; font-size: 12px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
 
-#floatCalcTrigger {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: var(--navy);
-    border: 2px solid var(--teal);
-    box-shadow: 0 4px 20px rgba(15,36,72,0.35);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-}
+        .speed-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(10,147,150,0.12); color: var(--teal);
+            font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(10,147,150,0.25);
+        }
 
-#floatCalcPanel {
-    width:244px;
-    background:white;
-    border-radius:16px;
-    border:1.5px solid #e2e8f0;
-    box-shadow:0 12px 40px rgba(0,0,0,0.18);
-    overflow:hidden;
-    margin-bottom:10px;
-}
+        /* ETA badge */
+        .eta-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(233,196,106,0.15); color: #92400e;
+            font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(233,196,106,0.4);
+        }
 
-.fc-header{
-    background:var(--navy);
-    padding:10px;
-    color:white;
-    display:flex;
-    justify-content:space-between;
-}
+        /* dedup badge */
+        .dedup-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(99,102,241,0.1); color: #4338ca;
+            font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(99,102,241,0.2);
+        }
 
-.fc-body{ padding:12px; }
+        /* wave animation for "Analysing" text */
+        .wave-char {
+            display: inline-block;
+            animation: waveChar 1.2s ease-in-out infinite;
+        }
+        @keyframes waveChar {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-5px); }
+        }
 
-.fc-input{
-    width:100%;
-    padding:8px;
-    border:1px solid #e2e8f0;
-    border-radius:8px;
-    font-weight:700;
-    text-align:right;
-}
-
-
-
+        /* progress bar gradient animation */
+        @keyframes progressGradient {
+            0%   { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--teal), var(--teal-light), var(--gold), var(--teal));
+            background-size: 200% 100%;
+            animation: progressGradient 1.5s linear infinite;
+            transition: width 0.4s ease;
+        }
     </style>
 </head>
 <body>
 
 <!-- Header -->
 <header class="header-bar sticky top-0 z-40">
-    <div class="max-w-[1600px] mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+    <div class="max-w-[1800px] mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-            <img src="https://www.pristinepearlpharma.in/images/alt-logo.png" 
-                 alt="Pristine Logo" 
+            <img src="https://www.pristinepearlpharma.in/images/alt-logo.png"
+                 alt="Pristine Logo"
                  class="h-10 w-auto object-contain"
                  onerror="this.onerror=null;this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
             <div id="logoFallback" style="display:none" class="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center">
@@ -339,15 +433,13 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <!-- Tab nav -->
             <div class="flex gap-1 bg-white/10 p-1 rounded-lg">
                 <button onclick="switchTab('manual')" id="tabBtnManual" class="tab-btn active">Distance Tracker</button>
                 <button onclick="switchTab('audit')" id="tabBtnAudit" class="tab-btn">Batch Audit</button>
             </div>
 
-            <!-- Import -->
             <input type="file" id="upload" class="hidden" accept=".xlsx,.xls,.csv">
-            <label for="upload" class="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all" 
+            <label for="upload" class="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all"
                    style="background:var(--teal);color:white;letter-spacing:0.05em;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -355,8 +447,7 @@
                 Import Data
             </label>
 
-            <!-- Download template -->
-            <button onclick="downloadTemplate()" 
+            <button onclick="downloadTemplate()"
                     class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all"
                     style="background:rgba(233,196,106,0.15);color:var(--gold);border:1px solid rgba(233,196,106,0.3);letter-spacing:0.05em;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -368,25 +459,20 @@
     </div>
 </header>
 
-<main class="flex-1 max-w-[1600px] mx-auto w-full p-6">
+<main class="flex-1 max-w-[1800px] mx-auto w-full p-6">
 
     <!-- MANUAL FINDER -->
     <section id="manualSection" class="space-y-5">
         <div class="flex flex-col lg:flex-row gap-5">
 
-            <!-- Left: Calculator -->
             <div class="lg:w-[360px] space-y-4">
                 <div class="card p-6">
-                    <!-- Card header -->
                     <div class="flex items-center justify-between mb-5">
                         <div>
                             <h2 class="text-slate-900 font-bold text-base">Route Calculator</h2>
-                            <p class="text-slate-400 text-xs mt-0.5"></p>
                         </div>
-                        <!-- CE toggle -->
                         <label class="flex items-center gap-2 cursor-pointer group">
-                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 group-hover:text-teal-600"
-                                  style="transition:color 0.2s">C&E Mode</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 group-hover:text-teal-600" style="transition:color 0.2s">C&E Mode</span>
                             <div class="relative">
                                 <input type="checkbox" id="ceToggle" class="sr-only peer" onchange="calculateChain()">
                                 <div class="w-10 h-5 bg-slate-200 rounded-full peer peer-checked:bg-teal-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
@@ -394,13 +480,11 @@
                         </label>
                     </div>
 
-                    <!-- Mode toggle -->
                     <div class="flex bg-slate-100 p-1 rounded-xl mb-5 gap-1">
                         <button onclick="updateLocalMode('1W')" id="local1W" class="mode-btn active">1-Way</button>
                         <button onclick="updateLocalMode('2W')" id="local2W" class="mode-btn">2-Way</button>
                     </div>
 
-                    <!-- Stops -->
                     <div id="stopContainer" class="space-y-3 mb-4">
                         <div class="relative stop-wrapper">
                             <span class="absolute left-3 top-4 w-2 h-2 rounded-full z-10" style="background:var(--teal)"></span>
@@ -417,14 +501,10 @@
                         <button onclick="calculateChain()" id="chainBtn" class="calc-btn flex-[2]">Calculate Route</button>
                     </div>
 
-                    <!-- Result Box -->
-                    <div id="chainResult" class="mt-5 hidden fade-in">
-                        <!-- Result content injected by JS -->
-                    </div>
+                    <div id="chainResult" class="mt-5 hidden fade-in"></div>
                 </div>
             </div>
 
-            <!-- Right: Map -->
             <div class="flex-1 card p-2 min-h-[560px] overflow-hidden relative">
                 <div id="mapLoader" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 hidden flex items-center justify-center">
                     <div class="text-center">
@@ -434,7 +514,7 @@
                         <p class="text-sm font-semibold mt-2" style="color:var(--navy)">Calculating route...</p>
                     </div>
                 </div>
-                <iframe id="map" class="w-full h-full rounded-xl" style="min-height:540px" frameborder="0" 
+                <iframe id="map" class="w-full h-full rounded-xl" style="min-height:540px" frameborder="0"
                         src="https://www.google.com/maps?q=india&output=embed"></iframe>
             </div>
         </div>
@@ -465,15 +545,21 @@
         <!-- Table card -->
         <div class="card overflow-hidden">
             <div class="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-3" style="background:#f8f9fa">
-                <input id="search" placeholder="Search by city, region..." 
-                       class="w-full sm:w-72 px-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:border-teal-400"
-                       style="font-family:'DM Sans',sans-serif;">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <input id="search" placeholder="Search by city, region, category..."
+                           class="w-full sm:w-80 px-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:border-teal-400"
+                           style="font-family:'DM Sans',sans-serif;">
+                    <span class="speed-tag whitespace-nowrap">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Parallel Mode
+                    </span>
+                </div>
                 <div class="flex gap-2">
-                    <button onclick="sortDiff()" 
+                    <button onclick="sortDiff()"
                             class="text-xs font-bold text-slate-500 bg-white border border-slate-200 px-4 py-2 rounded-lg hover:text-teal-600 transition-all">
                         Sort by Variance
                     </button>
-                    <button onclick="exportExcel()" 
+                    <button onclick="exportExcel()"
                             class="px-5 py-2 rounded-lg text-xs font-bold text-white transition-all flex items-center gap-2"
                             style="background:var(--teal);box-shadow:0 4px 12px rgba(10,147,150,0.25)">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,21 +570,32 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto custom-scrollbar" style="max-height:580px">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto custom-scrollbar" style="max-height:600px">
+                <table class="w-full text-left border-collapse" style="min-width:1400px">
                     <thead class="sticky top-0 z-10">
-                        <tr class="text-[10px] uppercase tracking-widest font-black">
-                            <th class="p-4">Type</th>
-                            <th class="p-4">Route Info</th>
-                            <th class="p-4 text-right">System KM</th>
-                            <th class="p-4 text-right" id="thAuditLabel">Audit KM (1W)</th>
-                            <th class="p-4 text-right">Fare Output</th>
-                            <th class="p-4 text-center">Map</th>
+                        <tr>
+                            <th class="audit-th">Row No</th>
+                            <th class="audit-th">Region</th>
+                            <th class="audit-th">From Place</th>
+                            <th class="audit-th">To Place</th>
+                            <th class="audit-th text-right">Distance</th>
+                            <th class="audit-th text-right">NEW KM</th>
+                            <th class="audit-th text-right">DIFF</th>
+                            <th class="audit-th text-right">Amount</th>
+                            <th class="audit-th">Travel Mode</th>
+                            <th class="audit-th">Category</th>
+                            <th class="audit-th text-right">SFC Min</th>
+                            <th class="audit-th text-right">SFC Max</th>
+                            <th class="audit-th">Date From</th>
+                            <th class="audit-th">Date To</th>
+                            <th class="audit-th">Ref Key 1</th>
+                            <th class="audit-th">Ref Key 2</th>
+                            <th class="audit-th text-center">Map</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
                         <tr>
-                            <td colspan="6" class="p-20 text-center text-slate-300 italic">
+                            <td colspan="17" class="p-20 text-center text-slate-300 italic">
                                 <div class="flex flex-col items-center gap-3">
                                     <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -514,16 +611,90 @@
     </section>
 </main>
 
-<!-- Progress -->
-<div id="progressContainer" class="hidden">
-    <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-black uppercase" style="color:var(--teal);letter-spacing:0.1em">Analyzing Routes...</span>
-        <span class="text-xs font-black text-slate-700" id="progressPercent">0%</span>
+<!-- ══════════════════════════════════════════
+     PROGRESS OVERLAY  (full-screen modal)
+══════════════════════════════════════════ -->
+<div id="progressOverlay" class="hidden">
+    <div class="progress-card">
+
+        <!-- animated header -->
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:var(--navy)">
+                <svg class="w-5 h-5 spinner" style="color:var(--teal)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 id="overlayTitle" class="font-black text-lg" style="font-family:'Sora',sans-serif;color:var(--navy)">
+                    <!-- wave chars injected by JS -->
+                </h3>
+                <p id="overlaySubtitle" class="text-xs text-slate-400 font-medium mt-0.5">Initialising parallel route engine…</p>
+            </div>
+        </div>
+
+        <!-- animated route line -->
+        <div class="route-anim mx-4">
+            <div class="route-dot" style="position:relative">
+                <div class="ping-ring"></div>
+            </div>
+            <div class="route-line-wrap" style="position:relative">
+                <div class="route-line-fill"></div>
+                <!-- car -->
+                <div class="car-icon">
+                    <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+                        <rect x="2" y="4" width="16" height="7" rx="2" fill="#0A9396"/>
+                        <rect x="5" y="2" width="10" height="5" rx="1.5" fill="#0A9396" opacity="0.7"/>
+                        <circle cx="5" cy="11" r="2" fill="#0F2448"/>
+                        <circle cx="15" cy="11" r="2" fill="#0F2448"/>
+                        <circle cx="5" cy="11" r="1" fill="#94D2BD"/>
+                        <circle cx="15" cy="11" r="1" fill="#94D2BD"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="route-dot dest" style="position:relative">
+                <div class="ping-ring"></div>
+            </div>
+        </div>
+
+        <!-- progress bar -->
+        <div class="w-full bg-slate-100 rounded-full overflow-hidden mb-3" style="height:8px">
+            <div id="overlayBar" class="progress-fill" style="width:0%"></div>
+        </div>
+
+        <!-- stats row -->
+        <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="proc-stat text-center">
+                <div id="ovDone" class="text-2xl font-black" style="color:var(--navy);font-family:'Sora',sans-serif">0</div>
+                <div class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">Done</div>
+            </div>
+            <div class="proc-stat text-center">
+                <div id="ovRemain" class="text-2xl font-black text-slate-400" style="font-family:'Sora',sans-serif">—</div>
+                <div class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">Remaining</div>
+            </div>
+            <div class="proc-stat text-center">
+                <div id="ovETA" class="text-2xl font-black" style="color:var(--gold);font-family:'Sora',sans-serif">—</div>
+                <div class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">ETA</div>
+            </div>
+        </div>
+
+        <!-- badges row -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <span class="speed-tag">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span id="batchSizeLabel">10 parallel</span>
+            </span>
+            <span id="dedupBadge" class="dedup-tag hidden">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                <span id="dedupCount">0</span> duplicates skipped
+            </span>
+            <span id="cacheHitBadge" class="eta-badge hidden">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <span id="cacheHitCount">0</span> cache hits
+            </span>
+        </div>
+
+        <p id="overlayCurrentRoute" class="text-[11px] text-slate-400 mt-3 italic truncate"></p>
     </div>
-    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-        <div id="progressBar" class="h-full transition-all" style="background:var(--teal);width:0%"></div>
-    </div>
-    <p class="text-[10px] text-slate-400 mt-1" id="progressText">Processing...</p>
 </div>
 
 <!-- Snapshot Overlay -->
@@ -538,11 +709,10 @@
             </button>
         </div>
 
-        <!-- The card to snapshot -->
         <div id="snapshotCard">
             <div class="relative z-10">
                 <div class="flex items-center gap-2 mb-4">
-                    <img src="https://www.pristinepearlpharma.in/images/alt-logo.png" 
+                    <img src="https://www.pristinepearlpharma.in/images/alt-logo.png"
                          alt="Pristine" class="h-7 object-contain" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))"
                          onerror="this.style.display='none'">
                     <div>
@@ -575,9 +745,8 @@
             </div>
         </div>
 
-        <!-- Actions -->
         <div class="flex gap-3 mt-4">
-            <button onclick="downloadSnapshot()" 
+            <button onclick="downloadSnapshot()"
                     class="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2"
                     style="background:var(--navy)">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,7 +754,7 @@
                 </svg>
                 Download PNG
             </button>
-            <button onclick="copySnapshotText()" 
+            <button onclick="copySnapshotText()"
                     class="flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
                     style="background:#f1f5f9;color:var(--navy)">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -597,19 +766,83 @@
     </div>
 </div>
 
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBY4B51EgEvjESbzq0BPhNXIsOOO22riG-2cs-huQkTfs5gj2ulw_PNGqztVpJg1LgeA/exec";
-    let tableData = [];
-    let globalMode = '1W';
-    let lastCalculation1W = null;
-    let lastStops = [];
-    let lastLogic = null;
+<!-- Floating Calculator -->
+<div id="floatCalc">
+    <div id="floatCalcPanel" class="hidden">
+        <div class="fc-header">
+            <span>⚡ KM Fare Diff Calc</span>
+            <button onclick="toggleCalc()">✕</button>
+        </div>
+        <div class="fc-body">
+            <div style="font-size:12px;margin-bottom:4px;">System Fare</div>
+            <div id="fc-derived" style="font-weight:800;font-size:18px;">—</div>
+            <hr style="margin:10px 0">
+            <div style="font-size:12px;margin-bottom:4px;">Staff Claimed Fare</div>
+            <input type="number" id="fc-userFare" class="fc-input" oninput="updateCalcDiff()">
+            <div style="margin-top:10px;font-size:12px;">Difference</div>
+            <div id="fc-diff" style="font-weight:800;font-size:18px;">—</div>
+        </div>
+    </div>
+    <button id="floatCalcTrigger" onclick="toggleCalc()" title="Fare Calculator">
+        <svg width="22" height="22" fill="none" stroke="white" stroke-width="1.8" viewBox="0 0 24 24">
+            <rect x="4" y="2" width="16" height="20" rx="3" ry="3"/>
+            <line x1="8" y1="7" x2="16" y2="7"/>
+            <line x1="8" y1="11" x2="10" y2="11"/>
+            <line x1="14" y1="11" x2="16" y2="11"/>
+            <line x1="8" y1="15" x2="10" y2="15"/>
+            <line x1="14" y1="15" x2="16" y2="15"/>
+        </svg>
+    </button>
+</div>
 
-    // ===== GOOGLE PLACES AUTOCOMPLETE (via Nominatim – no key needed) =====
+<script>
+    /* ─────────────────────────────────────────────
+       CONFIG
+    ───────────────────────────────────────────── */
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBY4B51EgEvjESbzq0BPhNXIsOOO22riG-2cs-huQkTfs5gj2ulw_PNGqztVpJg1LgeA/exec";
+    const BATCH_SIZE = 15; // parallel per wave
+
+    let tableData         = [];
+    let globalMode        = '1W';
+    let lastCalculation1W = null;
+    let lastLogic         = null;
+
+    /* ─────────────────────────────────────────────
+       KM CACHE
+    ───────────────────────────────────────────── */
+    const kmCache = new Map();
+
+    async function getKM(from, to) {
+        if (!from || !to) return 0;
+        const key = `${from.trim().toLowerCase()}||${to.trim().toLowerCase()}`;
+        if (kmCache.has(key)) return kmCache.get(key);
+
+        // Also check reverse direction (A→B same as B→A distance)
+        const keyRev = `${to.trim().toLowerCase()}||${from.trim().toLowerCase()}`;
+        if (kmCache.has(keyRev)) {
+            const rv = kmCache.get(keyRev);
+            kmCache.set(key, rv);
+            return rv;
+        }
+
+        try {
+            const res  = await fetch(`${SCRIPT_URL}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&mode=driving`);
+            const data = await res.json();
+            const km   = Math.round(data.km || 0);
+            kmCache.set(key, km);
+            return km;
+        } catch {
+            return 0;
+        }
+    }
+
+    /* ─────────────────────────────────────────────
+       AUTOCOMPLETE
+    ───────────────────────────────────────────── */
     let autocompleteDebounce = null;
 
     function handleInput(input) {
-        const query = input.value.trim();
+        const query  = input.value.trim();
         const parent = input.parentElement;
         const existing = parent.querySelector('.suggestions-list');
         if (existing) existing.remove();
@@ -617,29 +850,33 @@
 
         clearTimeout(autocompleteDebounce);
         autocompleteDebounce = setTimeout(() => {
-            fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=in&format=json&limit=7&addressdetails=1`,
-                  { headers: { 'Accept-Language': 'en' } })
-                .then(r => r.json())
-                .then(data => {
-                    const seen = new Set();
-                    const places = [];
-                    data.forEach(d => {
-                        const city = d.address.city || d.address.town || d.address.village || d.address.county || d.name;
-                        const state = d.address.state || '';
-                        const label = city ? `${city}${state ? ', ' + state : ''}` : d.display_name.split(',').slice(0,2).join(',');
-                        if (city && !seen.has(city.toLowerCase())) {
-                            seen.add(city.toLowerCase());
-                            places.push({ city: city.trim(), label: label.trim() });
-                        }
-                    });
-                    showSuggestions(input, places);
-                })
-                .catch(() => {});
+            fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=in&format=json&limit=7&addressdetails=1`,
+                { headers: { 'Accept-Language': 'en' } }
+            )
+            .then(r => r.json())
+            .then(data => {
+                const seen = new Set();
+                const places = [];
+                data.forEach(d => {
+                    const city  = d.address.city || d.address.town || d.address.village || d.address.county || d.name;
+                    const state = d.address.state || '';
+                    const label = city
+                        ? `${city}${state ? ', ' + state : ''}`
+                        : d.display_name.split(',').slice(0,2).join(',');
+                    if (city && !seen.has(city.toLowerCase())) {
+                        seen.add(city.toLowerCase());
+                        places.push({ city: city.trim(), label: label.trim() });
+                    }
+                });
+                showSuggestions(input, places);
+            })
+            .catch(() => {});
         }, 300);
     }
 
     function showSuggestions(input, places) {
-        const parent = input.parentElement;
+        const parent   = input.parentElement;
         const existing = parent.querySelector('.suggestions-list');
         if (existing) existing.remove();
         if (!places.length) return;
@@ -647,7 +884,7 @@
         const list = document.createElement('div');
         list.className = 'suggestions-list custom-scrollbar';
         places.forEach(p => {
-            const item = document.createElement('div');
+            const item  = document.createElement('div');
             item.className = 'suggestion-item';
             const parts = p.label.split(',');
             item.innerHTML = `<span class="font-semibold">${parts[0]}</span><span style="color:#94a3b8;font-size:11px">${parts.slice(1).join(',')}</span>`;
@@ -658,9 +895,8 @@
     }
 
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.stop-wrapper')) {
+        if (!e.target.closest('.stop-wrapper'))
             document.querySelectorAll('.suggestions-list').forEach(el => el.remove());
-        }
     });
 
     document.addEventListener('keydown', (e) => {
@@ -670,24 +906,29 @@
         }
     });
 
-        // ===== TAB SWITCH =====
+    /* ─────────────────────────────────────────────
+       TAB SWITCH
+    ───────────────────────────────────────────── */
     function switchTab(tab) {
         document.getElementById('manualSection').classList.toggle('hidden', tab !== 'manual');
         document.getElementById('auditSection').classList.toggle('hidden', tab !== 'audit');
         document.getElementById('tabBtnManual').className = 'tab-btn ' + (tab === 'manual' ? 'active' : '');
-        document.getElementById('tabBtnAudit').className = 'tab-btn ' + (tab === 'audit' ? 'active' : '');
+        document.getElementById('tabBtnAudit').className  = 'tab-btn ' + (tab === 'audit'  ? 'active' : '');
     }
 
-    // ===== MODE TOGGLE =====
+    /* ─────────────────────────────────────────────
+       MODE TOGGLE
+    ───────────────────────────────────────────── */
     function updateLocalMode(mode) {
         globalMode = mode;
         document.getElementById('local1W').className = 'mode-btn ' + (mode === '1W' ? 'active' : '');
         document.getElementById('local2W').className = 'mode-btn ' + (mode === '2W' ? 'active' : '');
-        document.getElementById('thAuditLabel').innerText = `Audit KM (${mode})`;
         if (lastCalculation1W !== null) updateManualUI(lastCalculation1W);
     }
 
-    // ===== ADD STOP =====
+    /* ─────────────────────────────────────────────
+       ADD STOP
+    ───────────────────────────────────────────── */
     function addStop() {
         const container = document.getElementById('stopContainer');
         const div = document.createElement('div');
@@ -695,7 +936,7 @@
         div.innerHTML = `
             <span class="absolute left-3 top-4 w-2 h-2 rounded-full z-10" style="background:#cbd5e1"></span>
             <input class="stop-input pr-10" placeholder="Next Stop" oninput="handleInput(this)">
-            <button onclick="this.parentElement.remove(); calculateChain();" 
+            <button onclick="this.parentElement.remove(); calculateChain();"
                     class="absolute right-3 text-slate-300 hover:text-rose-500 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -705,75 +946,56 @@
         container.appendChild(div);
     }
 
-    // ===== FARE LOGIC =====
+    /* ─────────────────────────────────────────────
+       FARE LOGIC
+       FIX: uses rawKm param so HQ (0 fare) still
+            shows correct distance in modeDist
+    ───────────────────────────────────────────── */
     function getLogic(dist1W) {
-        const isCE = document.getElementById('ceToggle').checked;
+        const isCE     = document.getElementById('ceToggle').checked;
         const modeDist = globalMode === '1W' ? dist1W : dist1W * 2;
 
         if (isCE) {
             const rate = dist1W > 100 ? 2.50 : 3.75;
             return {
-                type: "C&E",
-                typeLabel: "Care & Educators",
+                type: "C&E", typeLabel: "Care & Educators",
                 rateText: `₹${rate.toFixed(2)} / km (C&E Rate)`,
-                fare: modeDist * rate,
-                modeDist,
-                colorClass: "amber",
+                fare: modeDist * rate, modeDist,
                 headerBg: "linear-gradient(135deg,#f59e0b,#d97706)",
-                fareColor: "#d97706",
-                badgeBg: "#fef3c7",
-                badgeColor: "#92400e"
+                fareColor: "#d97706", badgeBg: "#fef3c7", badgeColor: "#92400e"
             };
-        } else {
-            if (dist1W <= 24.49) {
-                return {
-                    type: "HQ",
-                    typeLabel: "Headquarters",
-                    rateText: "HQ Flat Rate (₹0.00)",
-                    fare: 0,
-                    modeDist,
-                    headerBg: "linear-gradient(135deg,#334155,#1e293b)",
-                    fareColor: "#94a3b8",
-                    badgeBg: "#f1f5f9",
-                    badgeColor: "#475569"
-                };
-            } else {
-                const rate = modeDist > 500 ? 2.75 : 3.50;
-                return {
-                    type: "EX HQ",
-                    typeLabel: "Ex-Headquarters",
-                    rateText: `₹${rate.toFixed(2)} / km`,
-                    fare: modeDist * rate,
-                    modeDist,
-                    headerBg: `linear-gradient(135deg,var(--teal),#087e81)`,
-                    fareColor: "#0d9488",
-                    badgeBg: "#ccfbf1",
-                    badgeColor: "#0f766e"
-                };
-            }
         }
+        if (dist1W <= 24.49) {
+            // HQ — fare is 0 but distance is still the real KM
+            return {
+                type: "HQ", typeLabel: "Headquarters",
+                rateText: "HQ Flat Rate (₹0.00)",
+                fare: 0, modeDist,          // ← modeDist carries actual km
+                headerBg: "linear-gradient(135deg,#334155,#1e293b)",
+                fareColor: "#94a3b8", badgeBg: "#f1f5f9", badgeColor: "#475569"
+            };
+        }
+        const rate = modeDist > 500 ? 2.75 : 3.50;
+        return {
+            type: "EX HQ", typeLabel: "Ex-Headquarters",
+            rateText: `₹${rate.toFixed(2)} / km`,
+            fare: modeDist * rate, modeDist,
+            headerBg: "linear-gradient(135deg,var(--teal),#087e81)",
+            fareColor: "#0d9488", badgeBg: "#ccfbf1", badgeColor: "#0f766e"
+        };
     }
 
-    // ===== KM FETCH =====
-    async function getKM(from, to) {
-        if (!from || !to) return 0;
-        try {
-            const res = await fetch(`${SCRIPT_URL}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&mode=driving`);
-            const data = await res.json();
-            return Math.round(data.km || 0);
-        } catch { return 0; }
-    }
-
-    // ===== CALCULATE =====
+    /* ─────────────────────────────────────────────
+       MANUAL CALCULATE
+    ───────────────────────────────────────────── */
     async function calculateChain() {
         const inputs = document.querySelectorAll('.stop-input');
-        const stops = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
+        const stops  = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
         if (stops.length < 2) return;
 
-        lastStops = stops;
-        const btn = document.getElementById('chainBtn');
+        const btn    = document.getElementById('chainBtn');
         const loader = document.getElementById('mapLoader');
-        btn.innerText = "Routing..."; btn.disabled = true;
+        btn.innerText = "Routing…"; btn.disabled = true;
         loader.classList.remove('hidden');
 
         let total1W = 0;
@@ -784,17 +1006,16 @@
         lastCalculation1W = total1W;
         updateManualUI(total1W);
 
-        const mapQuery = stops.join(' to ');
-        document.getElementById('map').src = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+        document.getElementById('map').src =
+            `https://www.google.com/maps?q=${encodeURIComponent(stops.join(' to '))}&output=embed`;
 
         btn.innerText = "Calculate Route"; btn.disabled = false;
         loader.classList.add('hidden');
     }
 
-    // ===== UPDATE UI =====
     function updateManualUI(dist1W) {
         const logic = getLogic(dist1W);
-setSystemFare(Math.round(logic.fare));
+        setSystemFare(Math.round(logic.fare));
         lastLogic = logic;
         const resBox = document.getElementById('chainResult');
 
@@ -821,8 +1042,7 @@ setSystemFare(Math.round(logic.fare));
                     <p style="font-size:10px;color:#94a3b8;margin-top:4px;font-style:italic">${logic.rateText}</p>
                 </div>
                 <div class="flex gap-2">
-                    <!-- Snapshot button -->
-                    <button onclick="openSnapshot()" title="Snapshot" 
+                    <button onclick="openSnapshot()" title="Snapshot"
                             class="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105"
                             style="background:#f1f5f9;color:#64748b">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -830,8 +1050,7 @@ setSystemFare(Math.round(logic.fare));
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </button>
-                    <!-- Copy button -->
-                    <button onclick="copyResult()" title="Copy" 
+                    <button onclick="copyResult()" title="Copy"
                             class="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105"
                             style="background:#f1f5f9;color:#64748b">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -844,11 +1063,10 @@ setSystemFare(Math.round(logic.fare));
         resBox.classList.remove('hidden');
     }
 
-    // ===== COPY =====
     function copyResult() {
         if (!lastLogic) return;
         const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
-        const text = `Pristine Travel Expense\nRoute: ${stops.join(' → ')}\nType: ${lastLogic.type} (${lastLogic.typeLabel})\nDistance: ${lastLogic.modeDist} km (${globalMode})\nFare: ₹${Math.round(lastLogic.fare).toLocaleString('en-IN')}\nRate: ${lastLogic.rateText}`;
+        const text  = `Pristine Travel Expense\nRoute: ${stops.join(' → ')}\nType: ${lastLogic.type} (${lastLogic.typeLabel})\nDistance: ${lastLogic.modeDist} km (${globalMode})\nFare: ₹${Math.round(lastLogic.fare).toLocaleString('en-IN')}\nRate: ${lastLogic.rateText}`;
         navigator.clipboard.writeText(text).catch(() => {
             const el = document.createElement('textarea');
             el.value = text; document.body.appendChild(el); el.select();
@@ -856,29 +1074,29 @@ setSystemFare(Math.round(logic.fare));
         });
     }
 
-    // ===== SNAPSHOT =====
+    /* ─────────────────────────────────────────────
+       SNAPSHOT
+    ───────────────────────────────────────────── */
     function openSnapshot() {
         if (!lastLogic) return;
         const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
         document.getElementById('snapRoute').innerText = stops.join(' → ');
-        document.getElementById('snapMode').innerText = globalMode === '1W' ? '1-Way Journey' : '2-Way Journey';
-        document.getElementById('snapKm').innerText = lastLogic.modeDist + ' km';
-        document.getElementById('snapFare').innerText = '₹' + Math.round(lastLogic.fare).toLocaleString('en-IN');
-        document.getElementById('snapType').innerText = lastLogic.type;
-        document.getElementById('snapRate').innerText = lastLogic.rateText;
-        document.getElementById('snapDate').innerText = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+        document.getElementById('snapMode').innerText  = globalMode === '1W' ? '1-Way Journey' : '2-Way Journey';
+        document.getElementById('snapKm').innerText    = lastLogic.modeDist + ' km';
+        document.getElementById('snapFare').innerText  = '₹' + Math.round(lastLogic.fare).toLocaleString('en-IN');
+        document.getElementById('snapType').innerText  = lastLogic.type;
+        document.getElementById('snapRate').innerText  = lastLogic.rateText;
+        document.getElementById('snapDate').innerText  = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
         document.getElementById('snapshotOverlay').classList.remove('hidden');
     }
 
-    function closeSnapshot() {
-        document.getElementById('snapshotOverlay').classList.add('hidden');
-    }
+    function closeSnapshot() { document.getElementById('snapshotOverlay').classList.add('hidden'); }
 
     function downloadSnapshot() {
         const card = document.getElementById('snapshotCard');
         html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
             const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
-            const name = stops.length >= 2 ? `${stops[0].replace(/\s/g,'_')}_to_${stops[stops.length-1].replace(/\s/g,'_')}` : 'route';
+            const name  = stops.length >= 2 ? `${stops[0].replace(/\s/g,'_')}_to_${stops[stops.length-1].replace(/\s/g,'_')}` : 'route';
             const a = document.createElement('a');
             a.download = `Pristine_Route_${name}.png`;
             a.href = canvas.toDataURL('image/png');
@@ -888,41 +1106,73 @@ setSystemFare(Math.round(logic.fare));
 
     function copySnapshotText() {
         const stops = Array.from(document.querySelectorAll('.stop-input')).map(i => i.value.trim()).filter(v => v);
-        const text = `Pristine Travel Expense\n${stops.join(' → ')}\n${document.getElementById('snapKm').innerText} | ₹${document.getElementById('snapFare').innerText} | ${lastLogic.type}\n${lastLogic.rateText}`;
+        const text  = `Pristine Travel Expense\n${stops.join(' → ')}\n${document.getElementById('snapKm').innerText} | ₹${document.getElementById('snapFare').innerText} | ${lastLogic.type}\n${lastLogic.rateText}`;
         navigator.clipboard.writeText(text).catch(() => {
-            const el = document.createElement('textarea');
-            el.value = text; document.body.appendChild(el); el.select();
+            const el = document.createElement('textarea'); el.value = text;
+            document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
         });
         const btn = event.target.closest('button');
         btn.innerText = '✓ Copied!';
-        setTimeout(() => { btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg> Copy Text'; }, 2000);
+        setTimeout(() => {
+            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg> Copy Text';
+        }, 2000);
     }
 
-    // ===== TEMPLATE DOWNLOAD =====
+    /* ─────────────────────────────────────────────
+       TEMPLATE DOWNLOAD
+    ───────────────────────────────────────────── */
     function downloadTemplate() {
         const wb = XLSX.utils.book_new();
-        const headers = [["REGION NAME","FROM","TO","DISTANCE","EMPLOYEE NAME","EMPLOYEE ID","DEPARTMENT","DATE","NOTES"]];
+        const headers = [[
+            "Row_No", "Region_Name", "From_Place", "To_Place",
+            "Distance", "Amount", "Travel_Mode", "Category",
+            "SFC_Min_Count", "SFC_Max_Count",
+            "Date_From", "Date_To", "Ref_key1", "Ref_Key2"
+        ]];
         const sample = [
-            ["South Zone","Chennai","Bangalore",350,"Ravi Kumar","EMP001","Sales","2024-01-15","Client visit"],
-            ["North Zone","Delhi","Agra",210,"Priya Sharma","EMP002","Operations","2024-01-16","Audit"],
-            ["West Zone","Mumbai","Pune",155,"Amit Patel","EMP003","Care & Educators","2024-01-17","Training"],
+            [1,"South Zone","Chennai","Bangalore",350,"","Car","Sales",1,5,"2024-01-15","2024-01-15","REF001","KEY001"],
+            [2,"North Zone","Delhi","Agra",210,"","Bike","Operations",1,3,"2024-01-16","2024-01-16","REF002","KEY002"],
+            [3,"West Zone","Mumbai","Pune",155,"","Car","Care & Educators",1,4,"2024-01-17","2024-01-17","REF003","KEY003"],
         ];
         const ws = XLSX.utils.aoa_to_sheet([...headers, ...sample]);
-        ws['!cols'] = headers[0].map((_, i) => ({ wch: [18,20,20,12,22,14,22,14,28][i] }));
-        XLSX.utils.book_append_sheet(wb, ws, "Travel Audit Data");
+        ws['!cols'] = [8,18,18,18,12,12,14,22,14,14,14,14,14,14].map(w => ({ wch: w }));
+        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
         XLSX.writeFile(wb, "Pristine_Travel_Import_Template.xlsx");
     }
 
-    // ===== BATCH UPLOAD =====
+    /* ─────────────────────────────────────────────
+       WAVE TITLE ANIMATION
+    ───────────────────────────────────────────── */
+    function setWaveTitle(text) {
+        const el = document.getElementById('overlayTitle');
+        el.innerHTML = text.split('').map((ch, i) =>
+            `<span class="wave-char" style="animation-delay:${i * 0.06}s">${ch === ' ' ? '&nbsp;' : ch}</span>`
+        ).join('');
+    }
+
+    /* ─────────────────────────────────────────────
+       ETA FORMATTER
+    ───────────────────────────────────────────── */
+    function fmtETA(seconds) {
+        if (!isFinite(seconds) || seconds <= 0) return '< 1s';
+        if (seconds < 60) return `${Math.round(seconds)}s`;
+        const m = Math.floor(seconds / 60);
+        const s = Math.round(seconds % 60);
+        return `${m}m ${s}s`;
+    }
+
+    /* ─────────────────────────────────────────────
+       INIT
+    ───────────────────────────────────────────── */
     window.onload = () => {
         document.getElementById('upload').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (evt) => {
-                const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
-                const routes = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                const wb     = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+                const routes = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
                 document.getElementById('statTotal').innerText = routes.length;
                 switchTab('audit');
                 processBatch(routes);
@@ -938,67 +1188,226 @@ setSystemFare(Math.round(logic.fare));
         });
     };
 
-    // ===== BATCH PROCESS =====
-    async function processBatch(routes) {
-        tableData = [];
-        let issues = 0, totalFare = 0;
-        const container = document.getElementById('progressContainer');
-        container.classList.remove('hidden');
+    document.getElementById('snapshotOverlay').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('snapshotOverlay')) closeSnapshot();
+    });
 
-        for (let i = 0; i < routes.length; i++) {
-            const row = routes[i];
-            const from = row["FROM"] || row["Origin"] || "";
-            const to = row["TO"] || row["Destination"] || "";
-            const sysKm = parseFloat(row["DISTANCE"] || row["KM"] || 0);
-            const reg = row["REGION NAME"] || "N/A";
-
-            const d1W = await getKM(from, to);
-            const logic = getLogic(d1W);
-            totalFare += logic.fare;
-
-            const diff = Math.abs(sysKm - (globalMode === '1W' ? d1W : d1W * 2));
-            if (diff > 5) issues++;
-
-            tableData.push({ reg, from, to, sysKm, d1W, diff, logic });
-
-            const p = ((i + 1) / routes.length) * 100;
-            document.getElementById('progressBar').style.width = p + '%';
-            document.getElementById('progressPercent').innerText = Math.round(p) + '%';
-            document.getElementById('progressText').innerText = `Processing ${i+1} of ${routes.length} routes...`;
-            document.getElementById('statIssues').innerText = issues;
-            document.getElementById('statTotalFare').innerText = '₹' + Math.round(totalFare).toLocaleString('en-IN');
-
-            if (i % 5 === 0 || i === routes.length - 1) renderTable();
-        }
-        container.classList.add('hidden');
+    /* ─────────────────────────────────────────────
+       FIND DUPLICATES
+    ───────────────────────────────────────────── */
+    function findDuplicates(rows) {
+        const seen = new Map();
+        rows.forEach((r, i) => {
+            const key = `${(r.From_Place||'').trim().toLowerCase()}__${(r.To_Place||'').trim().toLowerCase()}`;
+            if (!seen.has(key)) seen.set(key, []);
+            seen.get(key).push(i);
+        });
+        const dupSet = new Set();
+        seen.forEach(indices => { if (indices.length > 1) indices.forEach(i => dupSet.add(i)); });
+        return dupSet;
     }
 
+    /* ─────────────────────────────────────────────
+       BUILD UNIQUE FETCH PLAN
+       Only fetch KM for unique From→To pairs;
+       duplicates (and reverse pairs) reuse cache.
+    ───────────────────────────────────────────── */
+    function buildFetchPlan(rows) {
+        // Returns array of unique pair keys that need a real fetch
+        const needFetch = [];
+        const seen = new Set();
+        rows.forEach(row => {
+            const f = (row.From_Place||'').trim().toLowerCase();
+            const t = (row.To_Place||'').trim().toLowerCase();
+            if (!f || !t) return;
+            const key    = `${f}||${t}`;
+            const keyRev = `${t}||${f}`;
+            if (!kmCache.has(key) && !kmCache.has(keyRev) && !seen.has(key) && !seen.has(keyRev)) {
+                seen.add(key);
+                needFetch.push({ from: row.From_Place.trim(), to: row.To_Place.trim(), key });
+            }
+        });
+        return needFetch;
+    }
+
+    /* ─────────────────────────────────────────────
+       FAST BATCH PROCESS
+       Phase 1: Fetch only unique pairs in parallel
+       Phase 2: Apply cached results to all rows
+    ───────────────────────────────────────────── */
+    async function processBatch(routes) {
+        tableData = [];
+        const overlay = document.getElementById('progressOverlay');
+        overlay.classList.remove('hidden');
+        setWaveTitle('Analysing Routes…');
+        document.getElementById('overlaySubtitle').innerText = 'Building deduplication plan…';
+        document.getElementById('batchSizeLabel').innerText = `${BATCH_SIZE} parallel`;
+
+        const dupSet    = findDuplicates(routes);
+        const fetchPlan = buildFetchPlan(routes);
+
+        const totalUnique = fetchPlan.length;
+        const skipped     = routes.length - totalUnique;
+
+        document.getElementById('statDuplicates').innerText = dupSet.size;
+
+        // Show dedup badge if any skipped
+        if (skipped > 0) {
+            document.getElementById('dedupBadge').classList.remove('hidden');
+            document.getElementById('dedupCount').innerText = skipped;
+        }
+
+        document.getElementById('ovRemain').innerText = totalUnique;
+        document.getElementById('overlaySubtitle').innerText =
+            `${totalUnique} unique routes to fetch • ${skipped} reuse cache`;
+
+        // ── Phase 1: fetch unique pairs ──
+        let fetched   = 0;
+        let cacheHits = 0;
+        const startTime = Date.now();
+
+        for (let start = 0; start < fetchPlan.length; start += BATCH_SIZE) {
+            const wave = fetchPlan.slice(start, start + BATCH_SIZE);
+
+            await Promise.all(wave.map(async ({ from, to, key }) => {
+                // Double-check cache (may have been populated by a parallel request)
+                const keyRev = `${to.trim().toLowerCase()}||${from.trim().toLowerCase()}`;
+                if (kmCache.has(key) || kmCache.has(keyRev)) {
+                    cacheHits++;
+                } else {
+                    await getKM(from, to);
+                }
+                fetched++;
+
+                // ETA calculation
+                const elapsed  = (Date.now() - startTime) / 1000;
+                const rate     = fetched / elapsed;
+                const remaining = totalUnique - fetched;
+                const eta      = remaining / rate;
+
+                document.getElementById('ovDone').innerText    = fetched;
+                document.getElementById('ovRemain').innerText  = remaining;
+                document.getElementById('ovETA').innerText     = fmtETA(eta);
+                document.getElementById('overlayBar').style.width = ((fetched / Math.max(totalUnique, 1)) * 100) + '%';
+                document.getElementById('overlayCurrentRoute').innerText = `↗ ${from} → ${to}`;
+
+                if (cacheHits > 0) {
+                    document.getElementById('cacheHitBadge').classList.remove('hidden');
+                    document.getElementById('cacheHitCount').innerText = cacheHits;
+                }
+            }));
+        }
+
+        // ── Phase 2: apply to all rows (instant, uses cache) ──
+        document.getElementById('overlayBar').style.width = '100%';
+        document.getElementById('overlaySubtitle').innerText = 'Applying results & computing fares…';
+        document.getElementById('overlayCurrentRoute').innerText = '';
+        setWaveTitle('Finalising…');
+
+        let issues = 0, totalFare = 0;
+        const results = routes.map((row, i) => {
+            const rowNo      = row["Row_No"]        || (i + 1);
+            const regionName = row["Region_Name"]   || '';
+            const fromPlace  = row["From_Place"]    || '';
+            const toPlace    = row["To_Place"]      || '';
+            const sysKm      = parseFloat(row["Distance"] || 0);
+            const travelMode = row["Travel_Mode"]   || '';
+            const category   = row["Category"]      || '';
+            const sfcMin     = row["SFC_Min_Count"] || '';
+            const sfcMax     = row["SFC_Max_Count"] || '';
+            const dateFrom   = row["Date_From"]     || '';
+            const dateTo     = row["Date_To"]       || '';
+            const refKey1    = row["Ref_key1"]      || '';
+            const refKey2    = row["Ref_Key2"]      || '';
+
+            // Read from cache (both directions)
+            const fKey    = `${fromPlace.trim().toLowerCase()}||${toPlace.trim().toLowerCase()}`;
+            const fKeyRev = `${toPlace.trim().toLowerCase()}||${fromPlace.trim().toLowerCase()}`;
+            const d1W     = kmCache.get(fKey) ?? kmCache.get(fKeyRev) ?? 0;
+
+            const logic   = getLogic(d1W);
+            const newKm   = logic.modeDist;
+            const diff    = parseFloat((sysKm - newKm).toFixed(1));
+            const absDiff = Math.abs(diff);
+            const amount  = Math.round(logic.fare);
+            const isDup   = dupSet.has(i);
+
+            if (absDiff > 5) issues++;
+            totalFare += amount;
+
+            return {
+                rowNo, regionName, fromPlace, toPlace,
+                sysKm, newKm, diff, amount,
+                travelMode, category, sfcMin, sfcMax,
+                dateFrom, dateTo, refKey1, refKey2,
+                logic, absDiff, isDup
+            };
+        });
+
+        tableData = results;
+        document.getElementById('statIssues').innerText    = issues;
+        document.getElementById('statTotalFare').innerText = '₹' + Math.round(totalFare).toLocaleString('en-IN');
+
+        renderTable();
+
+        // Hide overlay
+        setTimeout(() => overlay.classList.add('hidden'), 600);
+    }
+
+    /* ─────────────────────────────────────────────
+       DATE FORMAT
+    ───────────────────────────────────────────── */
+    function fmtDate(val) {
+        if (!val) return '—';
+        if (typeof val === 'number') {
+            const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+            return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+        }
+        return String(val);
+    }
+
+    /* ─────────────────────────────────────────────
+       RENDER TABLE
+    ───────────────────────────────────────────── */
     function renderTable() {
         const body = document.getElementById('tableBody');
         body.innerHTML = '';
         tableData.forEach(r => {
-            const isErr = r.diff > 8;
+            const isErr = r.absDiff > 8;
+            const isDup = r.isDup;
+            const rowBg = isDup ? 'bg-amber-50/50' : isErr ? 'bg-rose-50/40' : '';
+
             const tr = document.createElement('tr');
-            tr.className = `hover:bg-teal-50/30 transition-all ${isErr ? 'bg-rose-50/40' : ''}`;
+            tr.className = `hover:bg-teal-50/30 transition-all ${rowBg}`;
             tr.innerHTML = `
-                <td class="p-4">
-                    <span class="badge" style="background:${r.logic.badgeBg || '#f1f5f9'};color:${r.logic.badgeColor || '#475569'}">${r.logic.type}</span>
+                <td class="audit-td text-slate-400 text-center font-mono text-xs">${r.rowNo}</td>
+                <td class="audit-td">
+                    <span class="badge" style="background:${r.logic.badgeBg||'#f1f5f9'};color:${r.logic.badgeColor||'#475569'}">${r.logic.type}</span>
+                    <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">${r.regionName}</div>
                 </td>
-                <td class="p-4">
-                    <div class="font-bold text-slate-800 text-xs">${r.from} <span style="color:var(--teal)">→</span> ${r.to}</div>
-                    <div style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">${r.reg}</div>
+                <td class="audit-td font-semibold text-slate-800">${r.fromPlace || '—'}</td>
+                <td class="audit-td font-semibold text-slate-800">${r.toPlace || '—'}</td>
+                <td class="audit-td text-right text-slate-400 font-mono">${r.sysKm || '—'}</td>
+                <td class="audit-td text-right">
+                    <span class="km-pill">${r.newKm} km</span>
                 </td>
-                <td class="p-4 text-right font-medium text-slate-400">${r.sysKm} km</td>
-                <td class="p-4 text-right">
-                    <span class="km-pill">${r.logic.modeDist} km</span>
-                    <div style="font-size:9px;margin-top:3px;font-weight:700" class="${isErr ? 'text-rose-500' : 'text-slate-400'}">Δ ${r.diff.toFixed(1)} km</div>
+                <td class="audit-td text-right">
+                    <span class="font-black text-sm ${isErr ? 'text-rose-500' : r.diff > 0 ? 'text-amber-500' : 'text-slate-400'}">${r.diff > 0 ? '+' : ''}${r.diff}</span>
                 </td>
-                <td class="p-4 text-right">
-                    <div class="font-black text-base" style="color:${r.logic.fareColor || '#0A9396'}">₹${Math.round(r.logic.fare).toLocaleString('en-IN')}</div>
+                <td class="audit-td text-right">
+                    <div class="font-black" style="color:${r.logic.fareColor||'#0A9396'}">₹${r.amount.toLocaleString('en-IN')}</div>
                     <div style="font-size:9px;color:#94a3b8">${r.logic.rateText}</div>
                 </td>
-                <td class="p-4 text-center">
-                    <button onclick="viewOnMap('${r.from}', '${r.to}')" 
+                <td class="audit-td text-slate-600">${r.travelMode || '—'}</td>
+                <td class="audit-td text-slate-600">${r.category || '—'}</td>
+                <td class="audit-td text-right text-slate-500">${r.sfcMin || '—'}</td>
+                <td class="audit-td text-right text-slate-500">${r.sfcMax || '—'}</td>
+                <td class="audit-td text-slate-500 text-xs">${fmtDate(r.dateFrom)}</td>
+                <td class="audit-td text-slate-500 text-xs">${fmtDate(r.dateTo)}</td>
+                <td class="audit-td text-slate-400 text-xs font-mono">${r.refKey1 || '—'}</td>
+                <td class="audit-td text-slate-400 text-xs font-mono">${r.refKey2 || '—'}</td>
+                <td class="audit-td text-center">
+                    <button onclick="viewOnMap('${(r.fromPlace||'').replace(/'/g,"\\'")}', '${(r.toPlace||'').replace(/'/g,"\\'")}')"
                             class="w-8 h-8 rounded-lg flex items-center justify-center mx-auto transition-all hover:scale-110"
                             style="background:#f0fdfc;color:var(--teal)">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1015,122 +1424,60 @@ setSystemFare(Math.round(logic.fare));
         switchTab('manual');
         const inputs = document.querySelectorAll('.stop-input');
         inputs[0].value = f;
-        inputs[1].value = t;
+        if (inputs[1]) inputs[1].value = t;
         calculateChain();
     }
 
     function sortDiff() {
-        tableData.sort((a, b) => b.diff - a.diff);
+        tableData.sort((a, b) => b.absDiff - a.absDiff);
         renderTable();
     }
 
+    /* ─────────────────────────────────────────────
+       EXPORT EXCEL
+    ───────────────────────────────────────────── */
     function exportExcel() {
-        const data = tableData.map(r => ({
-            Region: r.reg, From: r.from, To: r.to,
-            System_KM: r.sysKm, Audit_KM: r.logic.modeDist,
-            Mode: globalMode, Type: r.logic.type,
-            Variance_KM: parseFloat(r.diff.toFixed(2)),
-            Fare_INR: Math.round(r.logic.fare),
-            Rate_Logic: r.logic.rateText
-        }));
-        const ws = XLSX.utils.json_to_sheet(data);
-        ws['!cols'] = Object.keys(data[0] || {}).map(() => ({ wch: 18 }));
+        const headers = [[
+            "Row_No","Region_Name","From_Place","To_Place",
+            "Distance","NEW KM","DIFF","Amount",
+            "Travel_Mode","Category",
+            "SFC_Min_Count","SFC_Max_Count",
+            "Date_From","Date_To","Ref_key1","Ref_Key2"
+        ]];
+        const rows = tableData.map(r => [
+            r.rowNo, r.regionName, r.fromPlace, r.toPlace,
+            r.sysKm, r.newKm, r.diff, r.amount,
+            r.travelMode, r.category,
+            r.sfcMin, r.sfcMax,
+            r.dateFrom, r.dateTo,
+            r.refKey1, r.refKey2
+        ]);
+        const ws = XLSX.utils.aoa_to_sheet([...headers, ...rows]);
+        ws['!cols'] = [8,18,18,18,10,10,8,10,14,20,12,12,14,14,14,14].map(w => ({ wch: w }));
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Audit Results");
+        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
         XLSX.writeFile(wb, "Pristine_Travel_Audit_Report.xlsx");
     }
 
-    // Close snapshot on overlay click
-    document.getElementById('snapshotOverlay').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('snapshotOverlay')) closeSnapshot();
-    });
-
-let calcVisible = false;
-
-function toggleCalc(){
-    const panel = document.getElementById("floatCalcPanel");
-
-    calcVisible = !calcVisible;
-
-    if(calcVisible){
-        panel.classList.remove("hidden");
-    }else{
-        panel.classList.add("hidden");
+    /* ─────────────────────────────────────────────
+       FLOATING CALCULATOR
+    ───────────────────────────────────────────── */
+    let calcVisible = false;
+    function toggleCalc() {
+        calcVisible = !calcVisible;
+        document.getElementById('floatCalcPanel').classList.toggle('hidden', !calcVisible);
     }
-}
-
-function setSystemFare(fare){
-    document.getElementById("fc-derived").innerText = "₹" + fare;
-}
-
-function updateCalcDiff(){
-
-    const system = parseFloat(
-        document.getElementById("fc-derived").innerText.replace("₹","")
-    ) || 0;
-
-    const user = parseFloat(
-        document.getElementById("fc-userFare").value
-    ) || 0;
-
-    const diff = user - system;
-
-    const diffEl = document.getElementById("fc-diff");
-
-    diffEl.innerText = "₹" + diff;
-
-    if(diff > 0){
-        diffEl.style.color = "red";
-    }else if(diff < 0){
-        diffEl.style.color = "green";
-    }else{
-        diffEl.style.color = "#64748b";
+    function setSystemFare(fare) {
+        document.getElementById('fc-derived').innerText = '₹' + fare;
     }
-}
-
+    function updateCalcDiff() {
+        const system = parseFloat(document.getElementById('fc-derived').innerText.replace('₹','')) || 0;
+        const user   = parseFloat(document.getElementById('fc-userFare').value) || 0;
+        const diff   = user - system;
+        const diffEl = document.getElementById('fc-diff');
+        diffEl.innerText   = '₹' + diff;
+        diffEl.style.color = diff > 0 ? 'red' : diff < 0 ? 'green' : '#64748b';
+    }
 </script>
-
-<!-- FLOATING CALCULATOR -->
-<div id="floatCalc">
-
-    <div id="floatCalcPanel" class="hidden">
-
-        <div class="fc-header">
-            <span>⚡ KM Fare Diff Calc</span>
-            <button onclick="toggleCalc()">✕</button>
-        </div>
-
-        <div class="fc-body">
-
-            <div style="font-size:12px;margin-bottom:4px;">System Fare</div>
-            <div id="fc-derived" style="font-weight:800;font-size:18px;">—</div>
-
-            <hr style="margin:10px 0">
-
-            <div style="font-size:12px;margin-bottom:4px;">Staff Claimed Fare</div>
-            <input type="number" id="fc-userFare" class="fc-input" oninput="updateCalcDiff()">
-
-            <div style="margin-top:10px;font-size:12px;">Difference</div>
-            <div id="fc-diff" style="font-weight:800;font-size:18px;">—</div>
-
-        </div>
-
-    </div>
-
-    <button id="floatCalcTrigger" onclick="toggleCalc()" title="Fare Calculator">
-
-<svg width="22" height="22" fill="none" stroke="white" stroke-width="1.8" viewBox="0 0 24 24">
-    <rect x="4" y="2" width="16" height="20" rx="3" ry="3"/>
-    <line x1="8" y1="7" x2="16" y2="7"/>
-    <line x1="8" y1="11" x2="10" y2="11"/>
-    <line x1="14" y1="11" x2="16" y2="11"/>
-    <line x1="8" y1="15" x2="10" y2="15"/>
-    <line x1="14" y1="15" x2="16" y2="15"/>
-</svg>
-
-</button>
-
-</div>
-
 </body>
 </html>
